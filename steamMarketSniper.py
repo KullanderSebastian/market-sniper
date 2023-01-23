@@ -6,6 +6,8 @@ import logging
 
 driver = webdriver.Chrome()
 urls = []
+patterns = []
+
 
 def sign_in():
     driver.get("https://steamcommunity.com/login/home/?goto=market%2Flistings%2F730")
@@ -22,7 +24,12 @@ def get_skins():
         with open("skins.txt", "r", encoding="utf-8") as find_skin_values:
             for line in find_skin_values:
                 if line.startswith("https://steamcommunity.com/market/listings/730/"):
-                    urls.append(line)
+                    line_split = line.split("#")
+                    urls.append(line_split[0])
+
+
+                    item_patterns = line_split[1].strip().split(",")
+                    patterns.append(item_patterns)
                 else:
                     continue
     except FileNotFoundError:
@@ -82,7 +89,16 @@ def check_max_price(order, price):
     return False
 
 def check_item_float_lower(item_float):
+    if url_info_global[count][0] == 0:
+        return False
+
     if item_float < float(url_info_global[count][0]):
+        return True
+
+    return False
+
+def check_item_pattern(item_pattern):
+    if item_pattern in patterns[count]:
         return True
 
     return False
@@ -112,6 +128,11 @@ def check_skins():
                 print("FOUND " + str(skin_name) + " WITH FLOAT: " + str(skin_float) + ".")
                 logging.basicConfig(filename="items.log", encoding="utf-8", level=logging.INFO, format='%(asctime)s %(message)s')
                 logging.info("Found " + str(skin_name) + " with float: " + str(skin_float) + ". Price: " + price_text_number[idx] + "EUR")
+
+            if check_item_pattern(skin_pattern):
+                print("FOUND " +str(skin_name) + " WITH PATTERN: " + str(skin_pattern) + ".")
+                logging.basicConfig(filename="items.log", encoding="utf-8", level=logging.INFO, format='%(asctime)s %(message)s')
+                logging.info("Found " + str(skin_name) + " with pattern: " + str(skin_pattern) + ". Price: " + price_text_number[idx] + "EUR")
 
         if not next_page() or max_price_reached:
             break
