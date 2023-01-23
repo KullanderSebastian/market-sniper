@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 import time
 import re
 import requests
@@ -98,7 +99,7 @@ def check_item_float_lower(item_float):
     return False
 
 def check_item_pattern(item_pattern):
-    if item_pattern in patterns[count]:
+    if str(item_pattern) in patterns[count]:
         return True
 
     return False
